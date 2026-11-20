@@ -115,6 +115,8 @@ scripts\build.bat test     :: builds build\sample_test.exe, which prints the sam
 The script finds the MSVC toolchain itself (through `vswhere`); inside an *x64 Native Tools Command Prompt*
 it uses the environment that is already set up.
 
+To produce the release assets (`dist\*.zip` and `dist\SHA256SUMS.txt`) see [docs/RELEASING.md](docs/RELEASING.md).
+
 ## How it works
 
 - A background thread samples every source independently once per interval; a source that fails shows `N/A`

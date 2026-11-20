@@ -1,0 +1,48 @@
+name: Release
+
+# Pushing a tag such as v1.0.0 builds the executable, packs the release assets and publishes a GitHub Release.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write   # needed to create the release and upload its assets
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check that the tag matches VERSION
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          if ("v$version" -ne $env:GITHUB_REF_NAME) {
+            throw "Tag $env:GITHUB_REF_NAME does not match VERSION ($version). Fix VERSION, then re-tag."
+          }
+
+      - name: Build and package
+        shell: pwsh
+        run: ./scripts/package-release.ps1
+
+      - name: Extract the release notes from CHANGELOG.md
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $text = Get-Content CHANGELOG.md -Raw -Encoding utf8
+          if ($text -match "(?ms)^## $([regex]::Escape($version))\s*\r?\n(.*?)(?=^## |\z)") {
+            $notes = $Matches[1].Trim()
+          } else {
+            throw "CHANGELOG.md has no '## $version' section."
+          }
+          $notes += "`n`n---`nThe executable is not code-signed, so SmartScreen or antivirus software may warn about it. Verify the zip against SHA256SUMS.txt."
+          Set-Content -Path release-notes.md -Value $notes -Encoding utf8
+
+      - name: Publish the release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $files = Get-ChildItem dist -File | ForEach-Object { $_.FullName }
+          gh release create $env:GITHUB_REF_NAME @files --title $env:GITHUB_REF_NAME --notes-file release-notes.md

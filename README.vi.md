@@ -113,6 +113,8 @@ scripts\build.bat test     :: tạo build\sample_test.exe, in các giá trị l�
 Script tự tìm bộ công cụ MSVC (qua `vswhere`); nếu chạy trong *x64 Native Tools Command Prompt* thì dùng luôn
 môi trường đã thiết lập sẵn.
 
+Để tạo các file phát hành (`dist\*.zip` và `dist\SHA256SUMS.txt`), xem [docs/RELEASING.md](docs/RELEASING.md).
+
 ## Cách hoạt động
 
 - Một thread nền lấy mẫu từng nguồn độc lập mỗi chu kỳ; nguồn nào lỗi sẽ hiện `N/A` và được thử lại sau vài
