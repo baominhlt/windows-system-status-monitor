@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1
+
+- Releases now include `WindowsSystemStatusMonitor.exe` as a separate download, ready to run without unpacking
+  a zip. Its SHA-256 is listed in `SHA256SUMS.txt` next to the zip's.
+
 ## 1.0.0
 
 First release.
