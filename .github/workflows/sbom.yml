@@ -1,0 +1,78 @@
+name: SBOM
+
+# Runs after the Release workflow succeeds: downloads the released zip, generates CycloneDX and SPDX SBOMs from
+# the executable that was actually shipped, and attaches them to the same Release.
+# It can also be started by hand (Actions -> SBOM -> Run workflow) to create SBOMs for an existing release.
+on:
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag, for example v1.0.0'
+        required: true
+
+permissions:
+  contents: write   # needed to upload assets to the release
+
+jobs:
+  sbom:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: windows-latest
+    steps:
+      - name: Resolve the release tag
+        id: tag
+        shell: pwsh
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+          RUN_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          # Values arrive through env vars (never pasted into the script) and are validated before use.
+          $tag = if ($env:GITHUB_EVENT_NAME -eq 'workflow_dispatch') { $env:INPUT_TAG } else { $env:RUN_BRANCH }
+          if ($tag -notmatch '^v\d+\.\d+\.\d+$') {
+            throw "'$tag' is not a release tag like v1.2.3. Start this workflow by hand and give the tag."
+          }
+          "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "version=$($tag.Substring(1))" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ steps.tag.outputs.tag }}   # the script exactly as it was at release time
+
+      - name: Download the released zip
+        id: asset
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          gh release download $env:TAG --repo $env:GITHUB_REPOSITORY --pattern '*-win-x64.zip' --dir dl
+          $zip = Get-ChildItem dl -Filter '*-win-x64.zip' | Select-Object -First 1
+          if (-not $zip) { throw "Release $env:TAG has no *-win-x64.zip asset." }
+          Expand-Archive -LiteralPath $zip.FullName -DestinationPath dl\extracted
+          $exe = Get-ChildItem dl\extracted -Recurse -Filter WindowsSystemStatusMonitor.exe | Select-Object -First 1
+          if (-not $exe) { throw 'WindowsSystemStatusMonitor.exe not found inside the zip.' }
+          "zip=$($zip.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "exe=$($exe.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Generate the SBOMs
+        shell: pwsh
+        env:
+          EXE: ${{ steps.asset.outputs.exe }}
+          ZIP: ${{ steps.asset.outputs.zip }}
+          VERSION: ${{ steps.tag.outputs.version }}
+        run: ./scripts/generate-sbom.ps1 -Exe $env:EXE -Zip $env:ZIP -Version $env:VERSION -OutDir sbom
+
+      - name: Attach the SBOMs to the release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          $files = Get-ChildItem sbom -File | ForEach-Object { $_.FullName }
+          gh release upload $env:TAG @files --clobber --repo $env:GITHUB_REPOSITORY
+          $count = (Get-Content (Get-ChildItem sbom -Filter *.cdx.json).FullName -Raw -Encoding utf8 | ConvertFrom-Json).components.Count
+          "### SBOM attached to $env:TAG" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          "- $count components, CycloneDX 1.5 and SPDX 2.3" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          Get-ChildItem sbom -File | ForEach-Object { "- $($_.Name)" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8 }
