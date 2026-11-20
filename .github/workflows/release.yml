@@ -36,7 +36,7 @@ jobs:
           } else {
             throw "CHANGELOG.md has no '## $version' section."
           }
-          $notes += "`n`n---`nThe executable is not code-signed, so SmartScreen or antivirus software may warn about it. Verify the zip against SHA256SUMS.txt."
+          $notes += "`n`n---`nThe executable is not code-signed, so SmartScreen or antivirus software may warn about it. Verify the downloads against SHA256SUMS.txt."
           Set-Content -Path release-notes.md -Value $notes -Encoding utf8
 
       - name: Publish the release

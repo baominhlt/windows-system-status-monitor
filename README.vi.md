@@ -30,14 +30,15 @@ nhớ đã dùng / tổng, dung lượng ổ, mức sử dụng đường truy�
 
 ## Cài đặt
 
-1. Tải `WindowsSystemStatusMonitor-vX.Y.Z-win-x64.zip` ở trang
-   [Releases](../../releases).
-2. *(Tùy chọn)* Kiểm tra với `SHA256SUMS.txt` trong cùng bản phát hành:
+1. Ở trang [Releases](../../releases), tải `WindowsSystemStatusMonitor.exe`: file thực thi duy nhất, chạy được
+   ngay ([bản mới nhất](../../releases/latest/download/WindowsSystemStatusMonitor.exe)).
+   Hoặc tải `WindowsSystemStatusMonitor-vX.Y.Z-win-x64.zip`, gồm cùng file thực thi đó kèm các README và giấy phép.
+2. *(Tùy chọn)* Kiểm tra file đã tải với `SHA256SUMS.txt` trong cùng bản phát hành:
    ```powershell
-   Get-FileHash .\WindowsSystemStatusMonitor-vX.Y.Z-win-x64.zip -Algorithm SHA256
+   Get-FileHash .\WindowsSystemStatusMonitor.exe -Algorithm SHA256
    ```
-3. Giải nén vào một thư mục bạn sẽ giữ lâu dài, ví dụ `C:\Tools\WindowsSystemStatusMonitor`.
-   *Đừng chạy trực tiếp từ bên trong file zip.*
+3. Đặt file thực thi vào một thư mục bạn sẽ giữ lâu dài, ví dụ `C:\Tools\WindowsSystemStatusMonitor`
+   (nếu tải file zip thì giải nén vào đó; *đừng chạy trực tiếp từ bên trong file zip*).
 4. Chạy `WindowsSystemStatusMonitor.exe`. Thanh trạng thái xuất hiện trên taskbar.
 5. Để tự khởi động cùng Windows: chuột phải lên thanh → **Start with Windows**.
    Mục này lưu đường dẫn của file thực thi, nên **hãy di chuyển thư mục trước rồi mới bật** (nếu sau này đổi chỗ
