@@ -30,14 +30,16 @@ used / total, drive sizes, link utilisation and temperatures.
 
 ## Install
 
-1. Download `WindowsSystemStatusMonitor-vX.Y.Z-win-x64.zip` from the
-   [Releases](../../releases) page.
-2. *(Optional)* Verify it against `SHA256SUMS.txt` from the same release:
+1. From the [Releases](../../releases) page download `WindowsSystemStatusMonitor.exe`: the single executable,
+   ready to run ([latest version](../../releases/latest/download/WindowsSystemStatusMonitor.exe)).
+   Alternatively download `WindowsSystemStatusMonitor-vX.Y.Z-win-x64.zip`, which holds the same executable plus
+   the README files and the license.
+2. *(Optional)* Verify the download against `SHA256SUMS.txt` from the same release:
    ```powershell
-   Get-FileHash .\WindowsSystemStatusMonitor-vX.Y.Z-win-x64.zip -Algorithm SHA256
+   Get-FileHash .\WindowsSystemStatusMonitor.exe -Algorithm SHA256
    ```
-3. Extract the zip to a folder you will keep, for example `C:\Tools\WindowsSystemStatusMonitor`.
-   *Do not run it from inside the zip file.*
+3. Put the executable in a folder you will keep, for example `C:\Tools\WindowsSystemStatusMonitor`
+   (if you downloaded the zip, extract it there; *do not run it from inside the zip file*).
 4. Run `WindowsSystemStatusMonitor.exe`. The strip appears on the taskbar.
 5. To start it automatically: right-click the strip → **Start with Windows**.
    The entry stores the path of the executable, so **move the folder first, then enable it** (if you move

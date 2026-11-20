@@ -13,7 +13,7 @@ There are two ways to produce that release: automatically (recommended) or by ha
 
 The workflow `.github/workflows/release.yml` runs when a tag starting with `v` is pushed. On a Windows runner it
 checks that the tag equals `v` + `VERSION`, runs `scripts\package-release.ps1`, takes the release notes from the
-matching `CHANGELOG.md` section, and publishes the Release with the zip and `SHA256SUMS.txt` attached.
+matching `CHANGELOG.md` section, and publishes the Release with the executable, the zip and `SHA256SUMS.txt` attached.
 
 Set your own identity first if this clone has none:
 
@@ -48,12 +48,14 @@ powershell -ExecutionPolicy Bypass -File scripts\package-release.ps1
 
 This builds the executable and creates, in `dist\`:
 
-- `WindowsSystemStatusMonitor-v<VERSION>-win-x64.zip`: the executable, `README.md`, `README.vi.md` and `LICENSE`
-  inside one top-level folder;
-- `SHA256SUMS.txt`: the SHA-256 of the zip.
+- `WindowsSystemStatusMonitor.exe`: the executable on its own, for a direct download (the stable name makes
+  `releases/latest/download/WindowsSystemStatusMonitor.exe` always point at the newest version);
+- `WindowsSystemStatusMonitor-v<VERSION>-win-x64.zip`: the same executable, `README.md`, `README.vi.md` and
+  `LICENSE` inside one top-level folder;
+- `SHA256SUMS.txt`: the SHA-256 of the executable and of the zip.
 
-Check the result: extract the zip into an empty folder, run the executable once, and compare `Get-FileHash` of
-the zip with `SHA256SUMS.txt`. These local files are the same ones the workflow would publish.
+Check the result: run the standalone executable once, extract the zip into an empty folder, and compare
+`Get-FileHash` of both files with `SHA256SUMS.txt`. These local files are the same ones the workflow would publish.
 
 ## 3. SBOM (automatic)
 
@@ -82,7 +84,7 @@ run-time components), so they describe exactly what was released. Notes:
 The tag push in step 2a is what triggers the workflow, so do not push a tag if you want to publish manually.
 Instead delete `.github/workflows/release.yml` (or disable the workflow under the **Actions** tab), then on GitHub
 choose **Releases → Draft a new release**, create the tag `v<VERSION>` there, paste the matching `CHANGELOG.md`
-section as the description, and upload **both** files from `dist\`.
+section as the description, and upload **all** the files from `dist\`.
 
 The executable is not code-signed; the automatic release notes already say so, and you should mention it in a
 hand-written one too.
