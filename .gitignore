@@ -1,0 +1,15 @@
+# build output and release assets (release files are uploaded to GitHub Releases, not committed)
+build/
+dist/
+
+# compiler / linker products
+*.obj
+*.exe
+*.pdb
+*.ilk
+*.exp
+*.lib
+
+# local settings and backups
+*.ini
+*.bak
