@@ -14,5 +14,5 @@ First release.
   columns are dropped automatically from the right when space runs out.
 - Tray-icon fallback (`--tray`, vertical taskbars, or when the taskbar cannot be found).
 - No administrator rights, no installer, single self-contained executable (static C runtime).
-- Release automation: pushing a `v*` tag builds the executable and publishes a GitHub Release
-  with the zip and its SHA-256 checksum.
+- Release automation: pushing a `v*` tag builds and publishes the release, then an SBOM workflow attaches
+  CycloneDX 1.5 and SPDX 2.3 SBOMs generated from the shipped executable.

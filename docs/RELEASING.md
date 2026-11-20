@@ -55,6 +55,28 @@ This builds the executable and creates, in `dist\`:
 Check the result: extract the zip into an empty folder, run the executable once, and compare `Get-FileHash` of
 the zip with `SHA256SUMS.txt`. These local files are the same ones the workflow would publish.
 
+## 3. SBOM (automatic)
+
+When the **Release** workflow succeeds, the **SBOM** workflow (`.github/workflows/sbom.yml`) starts on its own. It
+downloads the released zip, runs `scripts\generate-sbom.ps1` on the executable inside it, and uploads two files to the
+same Release (usually a minute or two after the zip appears):
+
+- `WindowsSystemStatusMonitor-v<VERSION>-win-x64.cdx.json` — CycloneDX 1.5
+- `WindowsSystemStatusMonitor-v<VERSION>-win-x64.spdx.json` — SPDX 2.3
+
+The SBOMs are read from the shipped binary (imported system DLLs, linker version, static C runtime, optional
+run-time components), so they describe exactly what was released. Notes:
+
+- **Re-create or backfill:** *Actions → SBOM → Run workflow*, give the tag (for example `v1.0.0`). Existing SBOM
+  assets of that release are replaced.
+- `workflow_run` workflows only fire when `sbom.yml` exists on the default branch, so merge it before tagging.
+- The SBOM workflow takes the tag from the triggering run. If it ever reports that the branch name is not a tag,
+  start it by hand with the tag instead.
+- Locally (needs a built exe and a zip): `powershell -ExecutionPolicy Bypass -File scripts\generate-sbom.ps1 -Exe build\WindowsSystemStatusMonitor.exe -Zip dist\<zip> -Version <VERSION>`
+  writes both files to `dist\`.
+- What an SBOM from a binary cannot know: versions of Windows system DLLs (they depend on the Windows build), and the
+  exact compiler build (only the `major.minor` linker version is recorded).
+
 ## Publishing by hand instead
 
 The tag push in step 2a is what triggers the workflow, so do not push a tag if you want to publish manually.
