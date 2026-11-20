@@ -149,6 +149,17 @@ môi trường đã thiết lập sẵn.
 - **Cài đặt dường như bị bỏ qua.** File được đọc khi khởi động và được ghi lại sau mỗi lần đổi menu; chỉ sửa
   khi ứng dụng đã đóng.
 
+## Bảng kê thành phần phần mềm (SBOM)
+
+Mỗi bản phát hành còn kèm SBOM đọc được bằng máy ở hai định dạng: `*.cdx.json` (CycloneDX 1.5) và `*.spdx.json`
+(SPDX 2.3). SBOM được sinh từ chính file thực thi đã phát hành bằng `scripts/generate-sbom.ps1`, do workflow `SBOM`
+tự chạy sau mỗi lần phát hành (xuất hiện trên trang release sau file zip khoảng một hai phút).
+
+Ứng dụng không đóng gói thư viện bên thứ ba nào: thư viện C được liên kết tĩnh, còn SBOM liệt kê các thư viện hệ
+thống Windows mà file thực thi nhập vào cùng các thành phần tùy chọn nó dùng khi có (`nvml.dll` của NVIDIA, UI
+Automation và các font biểu tượng Segoe). Phiên bản của các thư viện hệ thống phụ thuộc bản Windows nên không được
+ghi lại.
+
 ## Tài nguyên sử dụng
 
 Quan sát trong quá trình phát triển: khoảng 8 MB bộ nhớ riêng khi tắt đọc NVIDIA, và khoảng 27 MB khi bật

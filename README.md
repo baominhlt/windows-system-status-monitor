@@ -152,6 +152,17 @@ To produce the release assets (`dist\*.zip` and `dist\SHA256SUMS.txt`) see [docs
 - **Settings seem to be ignored.** The file is read at start-up and rewritten on every menu change; edit it only
   while the app is closed.
 
+## Software bill of materials (SBOM)
+
+Every release also carries machine-readable SBOMs in two formats, `*.cdx.json` (CycloneDX 1.5) and `*.spdx.json`
+(SPDX 2.3). They are generated from the shipped executable by `scripts/generate-sbom.ps1`, run automatically by the
+`SBOM` workflow after each release (they appear on the release a minute or two after the zip).
+
+The application bundles no third-party libraries: the C runtime is linked statically, and the SBOM lists the
+Windows system libraries the executable imports plus the optional components it uses when present (NVIDIA
+`nvml.dll`, UI Automation and the Segoe icon fonts). Versions of system libraries depend on the Windows build and
+are not recorded.
+
 ## Footprint
 
 Observed during development: about 8 MB of private memory with NVIDIA polling off, and roughly 27 MB with it on
